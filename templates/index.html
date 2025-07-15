@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconhecimento de Dígitos com Rede Neural</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            margin-top: 20px;
+        }
+        
+        .canvas-container, .nn-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        #drawingCanvas {
+            background-color: white;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            cursor: crosshair;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        #btnClear {
+            background-color: #6c757d;
+        }
+        
+        #btnClear:hover {
+            background-color: #5a6268;
+        }
+        
+        #predictionResult {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+            height: 30px;
+        }
+        
+        #nnCanvas {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Reconhecimento de Dígitos com Rede Neural</h1>
+
+    <div class="container">
+        <div class="canvas-container">
+            <h2>Desenhe um número de 0 a 9</h2>
+            <canvas id="drawingCanvas" width="500" height="500"></canvas>
+            <div class="controls">
+                <button id="btnPredict">Prever</button>
+                <button id="btnClear">Limpar</button>
+            </div>
+            <div id="predictionResult"></div>
+        </div>
+
+        <div class="nn-container">
+            <h2>Visualização da Rede Neural</h2>
+            <canvas id="nnCanvas" width="500" height="500"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Configuração inicial do canvas de desenho
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        // Configuro o canvas inicial
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 25;
+        ctx.lineCap = 'round';
+
+        // Função para obter posição do mouse/touch
+        function getPosition(event) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = event.clientX || event.touches[0].clientX;
+            const clientY = event.clientY || event.touches[0].clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        // Eventos de desenho
+        function startDrawing(e) {
+            isDrawing = true;
+            const { x, y } = getPosition(e);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            e.preventDefault();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const { x, y } = getPosition(e);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            e.preventDefault();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // Adiciono event listeners para mouse
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Adiciono event listeners para touch
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // Configuração dos botões
+        const btnClear = document.getElementById('btnClear');
+        const btnPredict = document.getElementById('btnPredict');
+        const predictionResultEl = document.getElementById('predictionResult');
+        const nnCanvas = document.getElementById('nnCanvas');
+        const nnCtx = nnCanvas.getContext('2d');
+
+        // Função para limpar canvas
+        btnClear.addEventListener('click', () => {
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            predictionResultEl.textContent = '';
+            nnCtx.clearRect(0, 0, nnCanvas.width, nnCanvas.height);
+        });
+
+        // Função para fazer predição
+        btnPredict.addEventListener('click', async () => {
+            predictionResultEl.textContent = '';
+            
+            const imageData = canvas.toDataURL('image/png');
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image: imageData })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na requisição: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                predictionResultEl.textContent = `Predição: ${result.prediction}`;
+
+            } catch (error) {
+                console.error("Erro ao prever:", error);
+                predictionResultEl.textContent = 'Erro ao prever.';
+                predictionResultEl.style.color = '#dc3545';
+            }
+        });
+    </script>
+
+</body>
+</html> 
