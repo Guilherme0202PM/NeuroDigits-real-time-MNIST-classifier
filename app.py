@@ -167,6 +167,50 @@ class Preditor:
         }
 
 # ============================================================================
+# CLASSE PARA PROCESSAMENTO DE IMAGENS
+# ============================================================================
+
+class ProcessadorImagem:
+    """Classe para processamento de imagens do canvas"""
+    
+    @staticmethod
+    def processar_imagem(dados_imagem):
+        """
+        Processo imagem do canvas para formato adequado ao modelo
+        
+        Args:
+            dados_imagem (str): Imagem em base64 do canvas
+            
+        Returns:
+            numpy.ndarray: Imagem processada pronta para predição
+        """
+        try:
+            # Decodifico base64
+            dados_decodificados = base64.b64decode(dados_imagem.split(',')[1])
+            imagem = Image.open(BytesIO(dados_decodificados))
+            
+            # Converto para escala de cinza
+            imagem = imagem.convert('L')
+            
+            # Inverto cores (MNIST espera dígitos brancos em fundo preto)
+            imagem = ImageOps.invert(imagem)
+            
+            # Redimensiono para 28x28
+            imagem = imagem.resize((28, 28), Image.Resampling.LANCZOS)
+            
+            # Converto para array e normalizo
+            array_imagem = np.array(imagem) / 255.0
+            
+            # Adiciono dimensão de batch
+            array_imagem = np.expand_dims(array_imagem, axis=0)
+            
+            return array_imagem
+            
+        except Exception as e:
+            print(f"Erro ao processar imagem: {e}")
+            return None
+
+# ============================================================================
 # ESTRUTURA INICIAL
 # ============================================================================
 
