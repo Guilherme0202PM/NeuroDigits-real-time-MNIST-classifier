@@ -79,8 +79,7 @@ Este projeto implementa um sistema completo de **Inteligência Artificial** para
 ## 📊 Dataset e Modelo
 
 ### MNIST Dataset
-- **70.000 imagens** de dígitos manuscritos
-- **60.000 para treinamento**, 10.000 para teste
+- **imagens** de dígitos manuscritos
 - **Formato**: 28x28 pixels em escala de cinza
 - **Classes**: 10 dígitos (0-9)
 
@@ -118,75 +117,8 @@ projeto/
 │   ├── mnist_train.csv
 │   └── mnist_test.csv
 ├── templates/            # Templates HTML (futuro)
-├── requirements.txt      # Dependências Python
 └── README.md            # Documentação
 ```
-
-## 🎯 Evolução do Desenvolvimento
-
-### Fase 1: Fundamentos ✅
-- Estrutura base do projeto
-- Imports e configurações globais
-- Definição de constantes e dependências
-
-### Fase 2: Dados ✅
-- Implementação da classe `TreinadorModelo`
-- Carregamento e preparação do dataset MNIST
-- Normalização e reshape de dados
-
-### Fase 3: Inteligência Artificial ✅
-- Arquitetura da rede neural (784→128→64→10)
-- Compilação com optimizer Adam
-- Configuração de loss e métricas
-
-### Fase 4: Lógica de Predição ✅
-- Classe `Preditor` para gerenciar predições
-- Carregamento de modelo treinado
-- Extração de ativações das camadas
-
-### Fase 5: Processamento ✅
-- Classe `ProcessadorImagem` para pré-processamento
-- Conversão base64 → array numpy
-- Normalização e redimensionamento
-
-### Fase 6: Backend ✅
-- API Flask com rotas REST
-- Integração frontend/backend
-- Tratamento robusto de erros
-
-### Fase 7: Frontend 🔄
-- Interface HTML5 Canvas
-- Estilização CSS3 moderna
-- Lógica JavaScript para interação
-
-### Fase 8: Visualização 🔄
-- Visualização da rede neural
-- Animações em tempo real
-- Experiência completa do usuário
-
-## 🚀 Como Executar
-
-### Pré-requisitos
-```bash
-Python 3.8+
-pip install -r requirements.txt
-```
-
-### Execução
-```bash
-python app.py
-```
-
-### Acesso
-```
-http://127.0.0.1:5000
-```
-
-## 📈 Métricas de Performance
-
-- **Acurácia**: ~95% no conjunto de teste
-- **Tempo de predição**: < 100ms
-- **Escalabilidade**: Suporte a múltiplas requisições simultâneas
 
 ## 🎓 Competências Demonstradas
 
@@ -222,19 +154,6 @@ http://127.0.0.1:5000
    - Design responsivo para mobile
    - Animações e transições suaves
 
-### Melhorias Futuras
-- **Deploy em produção** (Docker, AWS)
-- **Logs e monitoramento** (ELK Stack)
-- **Testes automatizados** (pytest)
-- **CI/CD Pipeline** (GitHub Actions)
-- **Documentação API** (Swagger)
-
-## 📞 Contato
-
-**Desenvolvedor**: [Seu Nome]  
-**LinkedIn**: [Seu LinkedIn]  
-**GitHub**: [Seu GitHub]  
-**Email**: [Seu Email]
 
 ---
 
