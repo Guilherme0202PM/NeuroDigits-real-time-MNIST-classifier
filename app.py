@@ -104,6 +104,69 @@ class TreinadorModelo:
         self.modelo.summary()
 
 # ============================================================================
+# CLASSE PARA PREDIÇÕES
+# ============================================================================
+
+class Preditor:
+    """Classe para fazer predições com o modelo"""
+    
+    def __init__(self):
+        self.modelo = None
+        self.modelo_ativacoes = None
+    
+    def carregar_modelo(self):
+        """Carrego o modelo treinado"""
+        if not os.path.exists(ARQUIVO_MODELO):
+            print(f"Erro: Modelo {ARQUIVO_MODELO} não encontrado!")
+            print("   O modelo deve estar presente no projeto.")
+            sys.exit(1)
+        
+        print(f"Carregando modelo {ARQUIVO_MODELO}...")
+        self.modelo = load_model(ARQUIVO_MODELO)
+        
+        # Crio modelo para extrair ativações
+        saidas_camadas = [camada.output for camada in self.modelo.layers[1:]]
+        self.modelo_ativacoes = Model(
+            inputs=self.modelo.inputs, 
+            outputs=saidas_camadas
+        )
+        
+        print("Modelo carregado!")
+    
+    def predizer(self, imagem_processada):
+        """
+        Faço predição e extraio ativações
+        
+        Args:
+            imagem_processada: Imagem processada pelo ProcessadorImagem
+            
+        Returns:
+            dict: Resultados da predição
+        """
+        # Obtenho ativações de todas as camadas
+        ativacoes = self.modelo_ativacoes.predict(imagem_processada, verbose=0)
+        
+        # Última ativação são as probabilidades finais
+        probabilidades = ativacoes[-1][0]
+        digito_predito = int(np.argmax(probabilidades))
+        
+        # Preparo ativações para JSON
+        ativacoes_json = {
+            'hidden_layer_1': ativacoes[0][0].tolist(),
+            'hidden_layer_2': ativacoes[1][0].tolist(),
+            'output_layer': ativacoes[2][0].tolist()
+        }
+        
+        # Obtenho pesos da camada de saída
+        pesos_saida = self.modelo.layers[-1].get_weights()[0].tolist()
+        
+        return {
+            'prediction': digito_predito,
+            'activations': ativacoes_json,
+            'weights': pesos_saida
+        }
+
+# ============================================================================
 # ESTRUTURA INICIAL
 # ============================================================================
 
