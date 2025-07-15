@@ -80,6 +80,28 @@ class TreinadorModelo:
         self.X_teste = self.X_teste / 255.0
         
         print(f"Dados carregados: {len(self.X_treino)} treino, {len(self.X_teste)} teste")
+    
+    def criar_modelo(self):
+        """Crio a arquitetura da rede neural"""
+        print("Criando arquitetura da rede neural...")
+        
+        self.modelo = Sequential([
+            tf.keras.Input(shape=(28, 28), name='entrada'),
+            Flatten(name='achatamento'),
+            Dense(128, activation='relu', name='oculta_1'),
+            Dense(64, activation='relu', name='oculta_2'),
+            Dense(10, activation='softmax', name='saida')
+        ])
+        
+        # Compilo o modelo
+        self.modelo.compile(
+            optimizer='adam',
+            loss='sparse_categorical_crossentropy',
+            metrics=['accuracy']
+        )
+        
+        print("Resumo da arquitetura:")
+        self.modelo.summary()
 
 # ============================================================================
 # ESTRUTURA INICIAL
