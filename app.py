@@ -211,21 +211,70 @@ class ProcessadorImagem:
             return None
 
 # ============================================================================
-# ESTRUTURA INICIAL
+# APLICAÇÃO FLASK
 # ============================================================================
 
-# Instâncias globais (serão implementadas nos próximos commits)
-# preditor = Preditor()
-# processador = ProcessadorImagem()
-# app = Flask(__name__)
+# Instâncias globais
+preditor = Preditor()
+processador = ProcessadorImagem()
+app = Flask(__name__)
+
+@app.route('/')
+def pagina_principal():
+    """Rota principal - interface de desenho"""
+    return render_template('index.html')
+
+@app.route('/predict', methods=['POST'])
+def endpoint_predicao():
+    """
+    Endpoint para predição de dígitos
+    
+    Recebe: JSON com imagem em base64
+    Retorna: JSON com predição e ativações
+    """
+    try:
+        # Verifico se modelo está carregado
+        if preditor.modelo is None:
+            return jsonify({'error': 'Model not loaded'}), 500
+        
+        # Obtenho dados da requisição
+        dados = request.get_json()
+        if 'image' not in dados:
+            return jsonify({'error': 'No image provided'}), 400
+        
+        # Processo imagem
+        imagem_processada = processador.processar_imagem(dados['image'])
+        if imagem_processada is None:
+            return jsonify({'error': 'Error processing image'}), 400
+        
+        # Faço predição
+        resultado = preditor.predizer(imagem_processada)
+        
+        return jsonify(resultado)
+        
+    except Exception as e:
+        print(f"Erro na predição: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+def iniciar_servidor():
+    """Inicio o servidor Flask"""
+    preditor.carregar_modelo()
+    print("Iniciando servidor em http://127.0.0.1:5000")
+    app.run(debug=True, use_reloader=False)
+
+# ============================================================================
+# FUNÇÃO PRINCIPAL
+# ============================================================================
 
 def main():
-    """Função principal - será implementada nos próximos commits"""
+    """Função principal - inicia o servidor"""
     print("Sistema de Reconhecimento de Dígitos")
     print("=" * 50)
-    print("Estrutura base criada!")
-    print("Próximos commits implementarão as funcionalidades")
+    print("O modelo já está treinado e pronto para uso!")
+    print("Acesse: http://127.0.0.1:5000")
     print("=" * 50)
+    
+    iniciar_servidor()
 
 if __name__ == '__main__':
     main() 
