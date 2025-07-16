@@ -6,86 +6,144 @@
     <title>Reconhecimento de Dígitos com Rede Neural</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            color: #22223b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             margin: 0;
             padding: 20px;
-            text-align: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        .header {
+            background: #4f8cff;
+            color: #fff;
+            padding: 32px 0 18px 0;
+            width: 100vw;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 24px rgba(79,140,255,0.10);
+            border-radius: 0 0 24px 24px;
         }
         
         .container {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             align-items: flex-start;
             gap: 40px;
-            margin-top: 20px;
         }
         
         .canvas-container, .nn-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fff;
+            padding: 24px 20px 28px 20px;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(79,140,255,0.08);
+            border: 2px solid #4f8cff;
+            min-width: 350px;
         }
         
         h1, h2 {
-            color: #333;
-            margin-bottom: 20px;
+            margin-top: 0;
+            color: #4f8cff;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 1px;
         }
         
         #drawingCanvas {
-            background-color: white;
-            border: 2px solid #ccc;
-            border-radius: 4px;
+            background-color: #f8fafc;
+            border: 2px solid #a0aec0;
+            border-radius: 12px;
             cursor: crosshair;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.07);
         }
         
         .controls {
             margin-top: 20px;
             display: flex;
-            gap: 10px;
-            justify-content: center;
+            gap: 12px;
         }
         
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 12px 28px;
+            font-size: 17px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            background-color: #007bff;
-            color: white;
+            background: linear-gradient(90deg, #4f8cff 60%, #38b6ff 100%);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+            transition: background 0.3s, transform 0.1s;
         }
         
         button:hover {
-            background-color: #0056b3;
+            background: linear-gradient(90deg, #38b6ff 60%, #4f8cff 100%);
+        }
+        
+        button:active {
+            transform: scale(0.97);
         }
         
         #btnClear {
-            background-color: #6c757d;
+            background: linear-gradient(90deg, #ff6b6b 60%, #ffb347 100%);
+            color: #fff;
         }
         
         #btnClear:hover {
-            background-color: #5a6268;
+            background: linear-gradient(90deg, #ffb347 60%, #ff6b6b 100%);
         }
         
         #predictionResult {
             margin-top: 20px;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
-            color: #28a745;
-            height: 30px;
+            color: #38b6ff;
+            height: 32px;
         }
         
         #nnCanvas {
-            background-color: #f8f9fa;
-            border-radius: 4px;
+            background-color: #e0e7ff;
+            border-radius: 12px;
+            border: 2px solid #a0aec0;
+        }
+        
+        /* Responsividade para dispositivos móveis */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .canvas-container, .nn-container {
+                min-width: 300px;
+                padding: 16px;
+            }
+            
+            #drawingCanvas, #nnCanvas {
+                width: 300px;
+                height: 300px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <h1>Reconhecimento de Dígitos com Rede Neural</h1>
+    <div class="header">
+        <h1>Reconhecimento de Dígitos com Rede Neural</h1>
+    </div>
 
     <div class="container">
         <div class="canvas-container">
