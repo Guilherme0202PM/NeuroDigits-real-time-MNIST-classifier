@@ -2,7 +2,9 @@
 
 > **Projeto concluído** - Backend completo com API REST para reconhecimento de dígitos escritos à mão usando TensorFlow/Keras e Flask.
 
-![Demonstração do Sistema](Demonstração.gif)
+<div align="center">
+  <img src="Demonstração.gif" alt="Demonstração do Sistema" width="600">
+</div>
 
 ## Visão Geral
 
