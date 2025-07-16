@@ -316,9 +316,168 @@
             }
         });
 
+        // Configuração da visualização da rede neural
+        const neuronRadius = 6;
+        const layerGap = nnCanvas.width / 4;
+        const maxNeuronsPerLayer = 20;
+
+        // Função para desenhar a rede neural
+        function drawNeuralNetwork(activations) {
+            nnCtx.clearRect(0, 0, nnCanvas.width, nnCanvas.height);
+
+            const layerConfigs = [
+                { name: 'Input', text: 'Entrada (28x28)', count: 20, activations: null },
+                { name: 'hidden_layer_1', text: 'Oculta 1 (128)', count: activations.hidden_layer_1.length, activations: activations.hidden_layer_1 },
+                { name: 'hidden_layer_2', text: 'Oculta 2 (64)', count: activations.hidden_layer_2.length, activations: activations.hidden_layer_2 },
+                { name: 'output_layer', text: 'Saída (10)', count: activations.output_layer.length, activations: activations.output_layer }
+            ];
+
+            // Desenho as conexões primeiro
+            nnCtx.strokeStyle = 'rgba(100, 100, 100, 0.1)';
+            nnCtx.lineWidth = 1;
+            
+            for (let i = 0; i < layerConfigs.length - 1; i++) {
+                const currentLayerX = layerGap * (i + 0.5);
+                const nextLayerX = layerGap * (i + 1.5);
+                
+                const currentLayerNeurons = Math.min(layerConfigs[i].count, maxNeuronsPerLayer);
+                const nextLayerNeurons = Math.min(layerConfigs[i + 1].count, maxNeuronsPerLayer);
+                
+                for (let j = 0; j < currentLayerNeurons; j++) {
+                    const y1 = (nnCanvas.height / (currentLayerNeurons + 1)) * (j + 1);
+                    
+                    for (let k = 0; k < nextLayerNeurons; k++) {
+                        const y2 = (nnCanvas.height / (nextLayerNeurons + 1)) * (k + 1);
+                        
+                        nnCtx.beginPath();
+                        nnCtx.moveTo(currentLayerX, y1);
+                        nnCtx.lineTo(nextLayerX, y2);
+                        nnCtx.stroke();
+                    }
+                }
+            }
+
+            // Desenho os neurônios com ativações
+            layerConfigs.forEach((layer, layerIndex) => {
+                const layerX = layerGap * (layerIndex + 0.5);
+                const neuronCount = Math.min(layer.count, maxNeuronsPerLayer);
+                
+                for (let i = 0; i < neuronCount; i++) {
+                    const y = (nnCanvas.height / (neuronCount + 1)) * (i + 1);
+                    
+                    // Calculo a intensidade baseada na ativação
+                    let intensity = 0.3;
+                    if (layer.activations && layer.activations[i] !== undefined) {
+                        intensity = Math.max(0.3, Math.min(1, layer.activations[i] * 2));
+                    }
+                    
+                    // Desenho o neurônio
+                    nnCtx.beginPath();
+                    nnCtx.arc(layerX, y, neuronRadius, 0, 2 * Math.PI);
+                    nnCtx.fillStyle = `rgba(79, 140, 255, ${intensity})`;
+                    nnCtx.fill();
+                    nnCtx.strokeStyle = '#4f8cff';
+                    nnCtx.lineWidth = 2;
+                    nnCtx.stroke();
+                }
+                
+                // Adiciono texto da camada
+                nnCtx.fillStyle = '#22223b';
+                nnCtx.textAlign = 'center';
+                nnCtx.font = '14px Montserrat';
+                nnCtx.fillText(layer.text, layerX, nnCanvas.height - 10);
+            });
+        }
+
+        // Função para animar as ativações
+        function animateActivations(activations) {
+            const steps = 30;
+            let currentStep = 0;
+            
+            const animate = () => {
+                if (currentStep >= steps) {
+                    drawNeuralNetwork(activations);
+                    return;
+                }
+                
+                const progress = currentStep / steps;
+                const animatedActivations = {
+                    hidden_layer_1: activations.hidden_layer_1.map(val => val * progress),
+                    hidden_layer_2: activations.hidden_layer_2.map(val => val * progress),
+                    output_layer: activations.output_layer.map(val => val * progress)
+                };
+                
+                drawNeuralNetwork(animatedActivations);
+                currentStep++;
+                requestAnimationFrame(animate);
+            };
+            
+            animate();
+        }
+
+        // Atualizo a função de predição para incluir visualização
+        btnPredict.addEventListener('click', async () => {
+            // Verifico se há desenho no canvas
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const hasDrawing = imageData.data.some(pixel => pixel !== 255);
+            
+            if (!hasDrawing) {
+                predictionResultEl.textContent = 'Desenhe um número primeiro!';
+                predictionResultEl.style.color = '#e53e3e';
+                return;
+            }
+
+            predictionResultEl.textContent = 'Processando...';
+            predictionResultEl.style.color = '#38b6ff';
+            
+            // Desabilito botão durante processamento
+            btnPredict.disabled = true;
+            btnPredict.style.opacity = '0.6';
+
+            try {
+                const imageDataURL = canvas.toDataURL('image/png');
+
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image: imageDataURL })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na requisição: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                predictionResultEl.textContent = `Predição: ${result.prediction}`;
+                predictionResultEl.style.color = '#38a169';
+
+                // Animo a visualização da rede neural
+                animateActivations(result.activations);
+
+            } catch (error) {
+                console.error("Erro ao prever:", error);
+                predictionResultEl.textContent = 'Erro ao processar. Tente novamente.';
+                predictionResultEl.style.color = '#e53e3e';
+            } finally {
+                // Reabilito botão após processamento
+                btnPredict.disabled = false;
+                btnPredict.style.opacity = '1';
+            }
+        });
+
         // Inicializo o canvas quando a página carrega
         document.addEventListener('DOMContentLoaded', () => {
             initializeCanvas();
+            
+            // Desenho a rede neural inicial
+            const initialActivations = {
+                hidden_layer_1: new Array(128).fill(0),
+                hidden_layer_2: new Array(64).fill(0),
+                output_layer: new Array(10).fill(0)
+            };
+            drawNeuralNetwork(initialActivations);
         });
     </script>
 

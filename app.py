@@ -15,6 +15,7 @@ Uso:
     python app.py          # Executar servidor (modelo já treinado)
 """
 
+
 import os
 import sys
 import base64
