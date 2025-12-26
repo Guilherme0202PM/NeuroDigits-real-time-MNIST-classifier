@@ -118,7 +118,7 @@ projeto/
 ├── app.py                 # Aplicação principal Flask
 ├── mnist_model.h5        # Modelo treinado
 ├── templates/            # Templates HTML
-└── README.md            # Documentação
+└── README.md            # Documentação.
 ```
 
 ## Competências Demonstradas
